@@ -362,8 +362,6 @@ int addArgs(Arg **head, Arg *add)
 int allocateNewCommand(Command **command)
 {
     
-    
-    
     Command *temp = NULL;
     int status = status_success;
     
@@ -374,7 +372,7 @@ int allocateNewCommand(Command **command)
         return status;
     }
     
-    temp->commandName = '\0';
+    temp->commandName = "\0";
     
     //Arg
     temp->arg_list = NULL;
@@ -434,7 +432,6 @@ int deleteCommand(Command *command)
 {
     int status = status_success;
     Command *temp = command;
-    
     
     // adjust previous command's fwd link
     if(temp->prevCommand != NULL) {
@@ -533,8 +530,7 @@ void printCommand(Command* command)
         default:
             break;
     }
-    
-    //    out(command->output_mode);
+
     
     printf("Command combine mode:");
     switch (command->next_command_exec_on) {
@@ -589,9 +585,7 @@ int popNextCommandByDivider(int *beginIndex,size_t *popedArylength,char **wholeC
         
         
     }
-    
-    
-    
+  
     if (i == *beginIndex || (i == tokenArylength - 1 && findBreakerResult==1 )|| (i == tokenArylength && 0!=findNeedNextCommandBreaker( *wholeCommandAry[i - 1]))) {
         status = status_failure;
         
@@ -622,29 +616,13 @@ int popNextCommandByDivider(int *beginIndex,size_t *popedArylength,char **wholeC
             *beginIndex = i + 1;
             
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        //        printCharArray(popedAry, *popedArylength);
-//        printf("begin index ===%d",*beginIndex);
-        //        wholeCommandAry = &wholeCommandAry[i+1];
-        
-        //        if (*tokenArylength > 0) {
-        //            <#statements#>
-        //        }
+ 
         
         //        for (int k = 0; k< *tokenArylength; k++) {
         //            //            printf("\n$$$ %zu\n",tempSize);
         //            printf("\nleft whole ary %s\n",tempWholeCommandAry[k]);
         //        }
-        
-        
+
     }
     
 exit1:
@@ -702,8 +680,7 @@ exit1:
 int parseCommandFromTokens(Command **command, CommandTokenChain **commandTokens,Command **headCommand)
 {
     int status = status_success;
-//    printf("\nbegin parse ===================================\n");
-    //    printCommandTokens(commandTokens);
+
     char *commandName = NULL;
     
     Command *commandtemp = NULL;
@@ -721,11 +698,7 @@ int parseCommandFromTokens(Command **command, CommandTokenChain **commandTokens,
             return status_failure;
         }
     }
-    
-    
-    
-    
-    
+   
     int i = 0;
     while (currentCommandToken!=NULL) {
                 
@@ -819,7 +792,6 @@ int parseCommandFromTokens(Command **command, CommandTokenChain **commandTokens,
                 }
                 currentCommandToken->symbol = syType;
                 
-//                printf("########## %s",currentCommandToken->prev->tokenName);
                 switch (syType) {
                     case RedirectIn:
                     {
@@ -874,10 +846,7 @@ int parseCommandFromTokens(Command **command, CommandTokenChain **commandTokens,
             }
 //            printf("----- syboltype %d \n",(int)syType);
         }
-        
-        
-        
-        
+    
         if(NULL != *headCommand) {
             // walk till end of list
             Command *temp = NULL ;
@@ -892,17 +861,11 @@ int parseCommandFromTokens(Command **command, CommandTokenChain **commandTokens,
                 (*command)->input_mode = I_PIPE;
             }
         }
-        
-        
-        
-        
-        
+         
         currentCommandToken = currentCommandToken->next;
         i++;
     }
-    
-    
-    //     printCommand(*command);
+
     
     return status;
 }
@@ -919,8 +882,7 @@ int getCommandChain(Command **head)
     size_t lineLength = 0;
     size_t bufferLength = 0;
     
-    
-    
+
     size_t commandBufferLength = 0;
     size_t commandLength = 0;
     //    SymbolType symtype = Null;
@@ -972,16 +934,13 @@ int getCommandChain(Command **head)
             size_t tempTokenAryLength = tokenAryLength;
             size_t popedAryLength = 0;
             // int xxx = tokenAryLength - beginIndex;
-            //            char *popedCommandTokenAry[] = {};
-            
             
             //(1)Pop up token arrays seprated by divider;
             if (status_failure == (status = popNextCommandByDivider(&beginIndex,&popedAryLength,tempCommandTokenAry,tempTokenAryLength)))
             {
                 deleteCommandChain(headCommand);
                 *head = NULL;
-                //                printf("\n &&&&&&&&&&&&&&&&&&&&&&  end mal form ---- Need Delete Command Chain");
-                // goto exit1;
+
                 return status_failure;
             }
             
@@ -1069,8 +1028,7 @@ int executeSingleCommand(Command *singleCommand)
         char **arguments = buildArgv(tempCommand->arg_list);
         
         int dupRe;
-        //        printf("%s %s %s",arguments[0],arguments[1],arguments[2]);
-        //        execlp(....);
+
         if ((tempCommand->input_mode == I_FILE || tempCommand->input_mode == I_APPND) && tempCommand->input_file != NULL) {
             tempCommand->input_fd = open(tempCommand->input_file, O_RDONLY);
             dupRe = dup2(tempCommand->input_fd, 0);
@@ -1127,12 +1085,10 @@ int executeSingleCommand(Command *singleCommand)
 //        printf("\n >>>>>>>------- pid ----- <<<<<<<<< \n : %d",pid);
         /* Rule 4: Wait for child unless we need to launch another exec */
 //        printf("Child caught\n");
-//        exit(0);
-//        printf("status1 %d",status);
+
     
     }
     
-//    printf("status2 %d",status);
     return tempCommand->execute_state;
 }
 int getDividerIndexOfCommandChain(Command *command, int cChainLength)
@@ -1167,9 +1123,7 @@ int execute1PipeCommand(Command *head)
     int status = status_success;
     Command *executeCommand = head;
 //    char **arguments1 = buildArgv(executeCommand->nextCommand->arg_list);
-//    printf("%s %s",arguments1[0],arguments1[1]);
- 
-//    printCommandChain(head);
+
   
     int pipefd[2];
     int pid;
@@ -1186,7 +1140,6 @@ int execute1PipeCommand(Command *head)
             executeCommand->input_fd = open(executeCommand->input_file, O_RDONLY);
             int dupRe = dup2(executeCommand->input_fd, 0);
             
-//            printf("---- %d\n",dupRe);
             close(executeCommand->input_fd);
             if (dupRe == -1) {
                 printf("Execute Pipe1 Command\n");
@@ -1222,7 +1175,6 @@ int execute1PipeCommand(Command *head)
                     close(pipefd[1]);
                     
                     //
-                    //        // execute grep
 
                     if (execvp(executeCommand->nextCommand->commandName, arguments1) < 0) {     /* execute the command  */
     
@@ -1232,8 +1184,9 @@ int execute1PipeCommand(Command *head)
 
                 }else{
                     
-                        close(pipefd[0]);
-                        close(pipefd[1]);
+                    close(pipefd[0]);
+                    close(pipefd[1]);
+                    
                     int stat;
                     int stat2;
                     int returnpid = 0;
@@ -1246,8 +1199,8 @@ int execute1PipeCommand(Command *head)
 //                    }
                     waitpid(pid, &stat,0);
                     waitpid(pid2,&stat2,0);
-//                    printf("pid %d stat %d \n",pid,stat);
-//                    printf("pid2 %d stat2 %d \n",pid2,stat2);
+
+
 //                    if (stat != 0) {
 //                        printf("first wrong");
 //                        return status_failure;
