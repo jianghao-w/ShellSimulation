@@ -48,12 +48,7 @@ void printCharArray(char **array, size_t *length)
 }
 int isCommandEnd(char ch)
 {
-    
-    
-    //ch == '<' || ch == '>' ||
-    //    if(ch == '|' || ch == ';' || ch == '\n' ||
-    //       ch == '&' || ch == '\0')
-    //        return 1;
+
     if ( ch == '\n' || ch == '\0') {
         return 1;
     }
@@ -180,22 +175,9 @@ int splitLineToToken(char *line, char **charStringAry,size_t *tokenArylength){
         i++;
     }
     
-    //    char ** tempTokenStringAry = malloc( sizeof(char *)*i);
-    //    for (int j=0; j < i; j++) {
-    //        tempTokenStringAry[j] = tempCharStringAry[j];
-    ////        printf("------------ %s\n",charStringAry[j]);
-    //    }
-    
-    //    charStringAry = tempTokenStringAry;
     
     *tokenArylength = i;
     
-    
-//    //For check tokens array
-//    printf("------------ \n");
-//    printCharArray(charStringAry, &i);
-//    //    printCharArray(tempTokenStringAry, &i);
-//    printf("------------ \n");
     
     return status_success;
     
@@ -245,25 +227,24 @@ char ** buildArgv(Arg *arg_list){
 // trim the line of white spaces
 int trim(char *line, size_t *length)
 {
-    char *read = NULL, *write = NULL;
-    int i = 0, j = 0;
-    
-    // trim from back
-    i = *length - 1;
-    while(isspace(line[i]))
-        i--;
-    line[i+1] = '\0';
-    
-    // chomp the spaces in front
-    read = write = line;
-    while (isspace(*read))
-        read++;
-    
-    // move the characters
-    for(  ; *write = *read; read++, write++) ;
-    
-    // update new length
-    *length = strlen(line);
+    size_t len = strlen(line);
+
+    // Trim leading whitespace
+    size_t start = 0;
+    while (isspace(line[start])) {
+        start++;
+    }
+
+    // Trim trailing whitespace
+    size_t end = len;
+    while (end > start && isspace(line[end - 1])) {
+        end--;
+    }
+
+    // Update length and trim the string in place
+    *length = end - start;
+    memmove(line, line + start, *length);
+    line[*length] = '\0';
     
     return 0;
 }
@@ -747,12 +728,7 @@ int parseCommandFromTokens(Command **command, CommandTokenChain **commandTokens,
     
     int i = 0;
     while (currentCommandToken!=NULL) {
-        
-        //        printf("\n ********** current token %s" ,currentCommandToken->tokenName);
-        //        if (currentCommandToken->prev !=NULL) {
-        //            printf("\n***********prev token %d ",currentCommandToken->prev->symbol);
-        //        }
-        
+                
         
         if (i == 0 ) {
             //First Token Command Name
@@ -1079,6 +1055,7 @@ int executeSingleCommand(Command *singleCommand)
     Command *tempCommand = singleCommand;
     int status = status_success;
     tempCommand->execute_state = status_success;
+    
     pid_t cpid = fork();
     if (cpid < 0 ){    /* Rule 2: Exit if Fork failed */
         fprintf(stderr, "Fork Failed \n");
@@ -1122,9 +1099,9 @@ int executeSingleCommand(Command *singleCommand)
         
         
         if (execvp(tempCommand->commandName, arguments) < 0) {     /* execute the command  */
+            
             printf("*** ERROR: exec failed\n");
             tempCommand->execute_state = status_failure;
-//            printf("\n----%d\n",tempCommand->execute_state);
             status = status_failure;
             exit(1);
         }
@@ -1212,6 +1189,7 @@ int execute1PipeCommand(Command *head)
 //            printf("---- %d\n",dupRe);
             close(executeCommand->input_fd);
             if (dupRe == -1) {
+                printf("Execute Pipe1 Command\n");
                 printf("error\n");
                 exit(1);
             }
@@ -1220,10 +1198,6 @@ int execute1PipeCommand(Command *head)
 
         close(pipefd[0]);
         
-        //
-        //        // execute grep
-        //
-//        printf("====%s %s %s",executeCommand->commandName,arguments[0],arguments[1]);
         if (execvp(executeCommand->commandName, arguments) < 0) {     /* execute the command  */
             printf("*** ERROR: exec failed\n");
             exit(1);
@@ -1249,8 +1223,9 @@ int execute1PipeCommand(Command *head)
                     
                     //
                     //        // execute grep
-                    //
+
                     if (execvp(executeCommand->nextCommand->commandName, arguments1) < 0) {     /* execute the command  */
+    
                         printf("*** ERROR: exec failed\n");
                         exit(1);
                     }
@@ -1602,11 +1577,7 @@ int executeCommandWithCheckPipe(Command *commandChainHead, PipeChain *pipeHead )
             dup2(temp1->pipefd[0], 0);
             close(temp1->pipefd[1]);
             
-            
-            //                    if (temp1->prev!=NULL) {
-            //                        close(temp1->prev->pipefd[0]);
-            //                        close(temp1->prev->pipefd[1]);
-            //                    }
+        
             PipeChain *temp2;
             temp2 = temp1;
             while (temp2->prev!= NULL) {
@@ -1644,8 +1615,10 @@ int executeCommandWithCheckPipe(Command *commandChainHead, PipeChain *pipeHead )
             }
         }
         
+       
         
-        if (execvp(commandChainHead->commandName, arguments) < 0) {     /* execute the command  */
+        int retVal = execvp(commandChainHead->commandName, arguments);
+        if (retVal < 0) {     /* execute the command  */
             printf("*** ERROR: exec failed\n");
             status = status_failure;
             exit(1);
